@@ -11,7 +11,6 @@ class LoopType(Enum):
 
 
 _AnimNodePoint: typing.TypeAlias = typing.Union[int, float, list[int | float]]
-d1 = 2
 
 
 def _node_sum(n: _AnimNodePoint, n2: _AnimNodePoint):
