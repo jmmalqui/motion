@@ -1,0 +1,21 @@
+[project]
+name = "motion"
+description = "Lightweight Animation Library "
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    { name="Johan Mallqui" }
+]
+
+dependencies = [
+    
+]
+
+[project.scripts]
+
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
