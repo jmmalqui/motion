@@ -1,2 +1,2 @@
-from .animator import Motion, LoopType
+from .motion import Motion, LoopType
 from . import curves
