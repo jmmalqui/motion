@@ -64,7 +64,7 @@ def check_for_data_type_coherence(d1, d2):
     return d1_type == d2_type
 
 
-class Animator:
+class Motion:
     def __init__(self) -> None:
         self.frame = 0
         self.frames: list[_AnimNode] = []

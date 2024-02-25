@@ -1,5 +1,5 @@
 [project]
-name = "animator"
+name = "motion"
 description = "Lightweight Animation Library "
 version = "0.0.1"
 readme = "README.md"

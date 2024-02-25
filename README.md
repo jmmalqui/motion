@@ -1,20 +1,20 @@
-# Animator 
+# Motion 
 Lightweight Animation Library
 
 
 
 # Usage 
 ```py
-import animator 
-myanim = animator.Animator()
+import motion 
+myanim = motion.Motion()
 
-myanim.add_frame(start=[0,0],end=[10,10], duration_ms=200, easing_type=animator.curves.ease_in_sine)
+myanim.add_frame(start=[0,0],end=[10,10], duration_ms=200, easing_type=motion.curves.ease_in_sine)
 """
 start, end: an int, float or a list that contains the two beforementioned.
 duration_ms: length in miliseconds between two keyframes.
 easing_type: an easing function, a custom one can be used as long as the range of it is [0,1].
 """
-myanim.add_frame(start=[10,10],end=[20,20], duration_ms=300, easing_type=animator.curves.ease_in_out_sine)
+myanim.add_frame(start=[10,10],end=[20,20], duration_ms=300, easing_type=motion.curves.ease_in_out_sine)
 
 myanim.play(loops=3,loop_type=LoopType.CLOSED)
 """
