@@ -72,15 +72,21 @@ class Animator:
         self.loop_type: typing.Optional[LoopType] = None
         self.time_stamp = time.time()
         self._is_playing = False
-        self.going_backwards = False
+        self._going_backwards = False
 
     def get_value(self):
         return self.current_value
 
     def add_frame(self, start, end, duration_ms, easing_type):
-        data_type_check_pass = check_for_data_type_coherence(start, end)
-        if not data_type_check_pass:
-            raise TypeError()
+        if not check_for_data_type_coherence(start, end):
+            if isinstance(start, list) and isinstance(end, list):
+                raise TypeError(
+                    f"Both keyframe endpoints should have the same size.\nstart: {start}\nend: {end} "
+                )
+            else:
+                raise TypeError(
+                    f"Both keyframe endpoints should share the same data type.\nstart: {type(start)}\nend: {type(end)}"
+                )
         self.frames.append(_AnimNode(start, end, duration_ms, easing_type))
 
     def play(self, loops: int, loop_type: LoopType):
@@ -93,51 +99,58 @@ class Animator:
     def is_playing(self):
         return self._is_playing
 
+    def get_current_frame(self):
+        return self.frame
+
+    def get_current_animation_node(self):
+        return self.frames[self.frame]
+
+    def is_going_backwards(self):
+        return self._going_backwards
+
     def update(self):
-        if self.is_playing():
-            frame = self.frames[self.frame]
-            time_diff = (time.time() - self.time_stamp) * 1000
-            t = time_diff / frame.duration_ms
-            if time_diff / frame.duration_ms >= 1:
-                if self.frame == len(self.frames) - 1 and not self.going_backwards:
-                    self.current_value = frame.end
-                    if self.loop_type == LoopType.ONEWAY:
-                        self.loops -= 1
-                        if self.loops == 0:
-                            self._is_playing = False
-                        else:
-                            self.frame = 0
-                            self.current_value = self.frames[self.frame].start
-                            self.time_stamp = time.time()
-                    elif self.loop_type == LoopType.CLOSED:
-                        self.going_backwards = True
-                        self.time_stamp = time.time()
-                    else:
-                        self._is_playing = False
-                elif self.frame == 0 and self.going_backwards:
+        if not self.is_playing():
+            return
+        frame = self.frames[self.frame]
+        time_diff = (time.time() - self.time_stamp) * 1000
+        t = time_diff / frame.duration_ms
+        if time_diff / frame.duration_ms >= 1:
+            if self.frame == len(self.frames) - 1 and not self.is_going_backwards():
+                self.current_value = frame.end
+                if self.loop_type == LoopType.ONEWAY:
                     self.loops -= 1
                     if self.loops == 0:
                         self._is_playing = False
                     else:
-                        self.going_backwards = False
+                        self.frame = 0
                         self.current_value = self.frames[self.frame].start
                         self.time_stamp = time.time()
+                elif self.loop_type == LoopType.CLOSED:
+                    self._going_backwards = True
+                    self.time_stamp = time.time()
                 else:
-                    if self.going_backwards:
-                        self.frame -= 1
-                        self.current_value = self.frames[self.frame].end
-                        self.time_stamp = time.time()
-                    elif not self.going_backwards:
-                        self.frame += 1
-                        self.current_value = self.frames[self.frame].start
-                        self.time_stamp = time.time()
+                    self._is_playing = False
+            elif self.frame == 0 and self.is_going_backwards():
+                self.loops -= 1
+                if self.loops == 0:
+                    self._is_playing = False
+                else:
+                    self._going_backwards = False
+                    self.current_value = self.frames[self.frame].start
+                    self.time_stamp = time.time()
             else:
-                if not self.going_backwards:
-                    self.current_value = _node_sum(
-                        frame.start, _node_mult(frame.diff(), frame.easing_type(t))
-                    )
-                elif self.going_backwards:
-                    self.current_value = _node_sum(
-                        frame.start,
-                        _node_mult(frame.diff(), frame.easing_type(1 - t)),
-                    )
+                if self.is_going_backwards():
+                    self.frame -= 1
+                    self.current_value = self.frames[self.frame].end
+                elif not self.is_going_backwards():
+                    self.frame += 1
+                    self.current_value = self.frames[self.frame].start
+                self.time_stamp = time.time()
+        else:
+            x = t
+            if self.is_going_backwards():
+                x = 1 - t
+            self.current_value = _node_sum(
+                frame.start,
+                _node_mult(frame.diff(), frame.easing_type(x)),
+            )
