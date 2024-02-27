@@ -67,19 +67,15 @@ def _check_for_data_type_coherence(d1, d2):
 
 class MotionGroup:
     def __init__(self) -> None:
-        self.motion_dict: dict[str, list[Motion]] = {}
+        self._motions: list[Motion] = []
 
-    def add(self, motion: Motion, motion_id: typing.Optional[str] = None):
-        if motion_id in self.motion_dict:
-            self.motion_dict[motion_id].append(motion)
-        else:
-            self.motion_dict[motion_id] = [motion]
+    def add(self, *motions: Motion):
+        for m in motions:
+            self._motions.append(m)
 
-    def play_by_id(self, motion_id: str):
-        if motion_id not in self.motion_dict:
-            raise ValueError(f"{motion_id} not found")
-        for motion in self.motion_dict[motion_id]:
-            motion.play()
+    def update(self):
+        for motion in self._motions:
+            motion.update()
 
 
 class Motion:

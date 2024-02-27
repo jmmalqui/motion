@@ -110,13 +110,15 @@ def ease_in_out_circ(x):
 def ease_in_back(x):
     c1 = 1.70158
     c2 = c1 + 1
-    return c2 * x * x * x - c1 * x * x
+    x2 = x * x
+    return c2 * x2 * x - c1 * x2
 
 
 def ease_out_back(x):
     c1 = 1.70158
     c2 = c1 + 1
-    return 1 + c2 * pow(x - 1, 3) + c1 * pow(x - 1, 2)
+    px1 = pow(x - 1, 2)
+    return 1 + c2 * px1 * (x - 1) + c1 * px1
 
 
 def ease_in_out_back(x):

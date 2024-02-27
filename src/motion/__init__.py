@@ -1,2 +1,2 @@
-from .motion import Motion, LoopType
+from .motion import Motion, LoopType, MotionGroup
 from . import curves
