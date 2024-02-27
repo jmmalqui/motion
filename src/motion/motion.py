@@ -1,3 +1,4 @@
+from __future__ import annotations
 import time
 import typing
 from enum import Enum
@@ -50,7 +51,7 @@ class _AnimNode:
             return self.end - self.start
 
 
-def check_for_data_type_coherence(d1, d2):
+def _check_for_data_type_coherence(d1, d2):
     d1_type = type(d1)
     d2_type = type(d2)
 
@@ -64,11 +65,28 @@ def check_for_data_type_coherence(d1, d2):
     return d1_type == d2_type
 
 
+class MotionGroup:
+    def __init__(self) -> None:
+        self.motion_dict: dict[str, list[Motion]] = {}
+
+    def add(self, motion: Motion, motion_id: typing.Optional[str] = None):
+        if motion_id in self.motion_dict:
+            self.motion_dict[motion_id].append(motion)
+        else:
+            self.motion_dict[motion_id] = [motion]
+
+    def play_by_id(self, motion_id: str):
+        if motion_id not in self.motion_dict:
+            raise ValueError(f"{motion_id} not found")
+        for motion in self.motion_dict[motion_id]:
+            motion.play()
+
+
 class Motion:
     def __init__(self) -> None:
         self.frame = 0
         self.frames: list[_AnimNode] = []
-        self.current_value: typing.Optional[_AnimNodePoint] = None
+        self.current_value: typing.Optional[_AnimNodePoint] = 0
         self.loop_type: typing.Optional[LoopType] = None
         self.time_stamp = time.time()
         self._is_playing = False
@@ -78,7 +96,7 @@ class Motion:
         return self.current_value
 
     def add_frame(self, start, end, duration_ms, easing_type):
-        if not check_for_data_type_coherence(start, end):
+        if not _check_for_data_type_coherence(start, end):
             if isinstance(start, list) and isinstance(end, list):
                 raise TypeError(
                     f"Both keyframe endpoints should have the same size.\nstart: {start}\nend: {end} "
@@ -121,6 +139,7 @@ class Motion:
                     self.loops -= 1
                     if self.loops == 0:
                         self._is_playing = False
+                        self.frame = 0
                     else:
                         self.frame = 0
                         self.current_value = self.frames[self.frame].start
